@@ -1,0 +1,31 @@
+{
+  "name": "something-new",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/classnames": "0.0.30",
+    "@types/react": "^0.14.37",
+    "@types/react-dom": "^0.14.17",
+    "@types/react-router": "^2.0.36",
+    "classnames": "^2.2.5",
+    "css-loader": "^0.25.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "html-webpack-plugin": "^2.22.0",
+    "mobx": "^2.5.2",
+    "node-sass": "^3.10.1",
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2",
+    "react-router": "^2.8.1",
+    "sass-loader": "^4.0.2",
+    "style-loader": "^0.13.1",
+    "typescript": "^2.1.0-dev.20160930",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.1"
+  }
+}
