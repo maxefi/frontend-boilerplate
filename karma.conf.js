@@ -1,8 +1,17 @@
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
+var styleBundleName = 'style.css';
+
+const htmlPluginConfig = {
+    // filename: './src/index.html',
+    // inject: false,
+};
+
 module.exports = function (config) {
     config.set({
         basePath: '',
         frameworks: ['jasmine'],
-        files: ['src/spec/main.spec.ts'],
+        files: ['src/specs.ts'],
         preprocessors: {
             'src/spec/main.spec.ts': ['webpack', 'sourcemap'],
         },
@@ -12,7 +21,11 @@ module.exports = function (config) {
             },
             module: {
                 loaders: [
-                    {test: /\.tsx?$/, loader: 'ts-loader'}
+                    {test: /\.tsx?$/, loader: 'ts-loader'},
+                    {
+                        test: /\.scss/,
+                        loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap&modules&&localIdentName=[local]-[hash:base64:2]!sass?sourceMap'),
+                    }
                 ]
             },
             stats: {
@@ -21,6 +34,10 @@ module.exports = function (config) {
                 reasons: true,
                 errorDetails: true
             },
+            plugins: [
+                new ExtractTextPlugin(styleBundleName),
+                new HtmlWebpackPlugin(htmlPluginConfig),
+            ],
             devtool: 'inline-source-map',
         },
         reporters: ['progress'],
@@ -28,7 +45,7 @@ module.exports = function (config) {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ['Chrome'],
+        browsers: [],
         singleRun: false,
         concurrency: Infinity
     })

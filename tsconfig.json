@@ -5,6 +5,7 @@
     "noImplicitAny": true,
     "sourceMap": true,
     "jsx": "react",
-    "outDir": "dist"
+    "outDir": "dist",
+    "allowSyntheticDefaultImports": true
   }
 }
