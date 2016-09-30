@@ -21,4 +21,4 @@ var server = new WebpackDevServer(webpack(wpConfig), {
         children: false
     }
 });
-server.listen(8090);
+server.listen(8020);

@@ -9,9 +9,9 @@ const htmlPluginConfig = {
 };
 
 module.exports = {
-    entry: "./src/index.tsx",
+    entry: __dirname + "/src/index.tsx",
     output: {
-        path: '/dist/',
+        path: __dirname + '/dist',
         filename: "bundle.js",
     },
 
@@ -25,8 +25,14 @@ module.exports = {
 
     module: {
         loaders: [
-            // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
-            { test: /\.tsx?$/, loader: "ts-loader" }
+            {
+                test: /\.tsx?$/,
+                loader: "ts-loader"
+            },
+            {
+                test: /\.scss/,
+                loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap&modules&&localIdentName=[local]-[hash:base64:2]!sass?sourceMap'),
+            }
         ],
 
         preLoaders: [
