@@ -1,2 +1,2 @@
 ///<reference path="../node_modules/@types/jasmine/index.d.ts"/>
-import './components/Hello/Hello.spec';
+import './components/App/Hello/Hello.spec';

@@ -31,7 +31,7 @@ module.exports = {
             },
             {
                 test: /\.scss/,
-                loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap&modules&&localIdentName=[local]-[hash:base64:2]!sass?sourceMap'),
+                loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap&camelCase&modules&&localIdentName=[local]-[hash:base64:2]!sass?sourceMap'),
             }
         ],
 

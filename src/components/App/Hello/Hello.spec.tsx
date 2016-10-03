@@ -7,9 +7,9 @@ describe("Hello", () => {
     it("renders a hello world", () => {
         const renderer = TestUtils.createRenderer();
         renderer.render(
-            <Hello compiler="TypeScript" framework="React"/>
+            <Hello/>
         );
         const hello = renderer.getRenderOutput();
-        expect(hello).toEqual(<h1 className={styles.hello}>Hello from {'TypeScript'} and {'React'}!</h1>)
+        expect(hello).toEqual(<h1 className={styles.hello}>Hello from TypeScript and React!</h1>)
     })
-})
+});
