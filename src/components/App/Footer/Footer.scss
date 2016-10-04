@@ -1,3 +1,9 @@
-@import "../../../styles/variables";
-@import "../../../styles/mixins";
+@import "../../../styles/index";
 
+.footer {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  margin-top: 40px;
+  border-top: 1px solid darken($header-gray, 5%);
+  text-align: center;
+}

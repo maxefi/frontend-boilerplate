@@ -20,8 +20,8 @@ interface RouteParams {
 }
 
 interface Children {
-    index?: ComponentClass<{}>
-    any?: ComponentClass<{}>
+    index?: any
+    any?: any
 }
 interface PublicRoute {
     goto(props?: {}, search?: {}, replace?: boolean): FastPromise<any>;
@@ -41,7 +41,7 @@ export function route<C extends Children>(url: string, component: any, children 
     if (children) {
         const keys = Object.keys(children);
         if (children.index) {
-            route.addChild(new Route({url: '^', component: children.index}));
+            route.addChild(new Route({url: '#', component: children.index}));
         }
         if (children.any) {
             route.addChild(new Route({url: '*', component: children.any}));
@@ -100,7 +100,7 @@ export class Route<Props> {
             this.regexpNames.push(new RegExp(':' + v[1] + '(/|$)'));
         }
         this.url = url;
-        this.regexp = new RegExp('^' + url.replace(/(:([^\/]+))/g, '([^\/]+)').replace(/\*\//g, '.+').replace(/\^\//g, '') + '?$');
+        this.regexp = new RegExp('^' + url.replace(/(:([^\/]+))/g, '([^\/]+)').replace(/\*\//g, '.+').replace(/#\//g, '') + '?$');
     }
 
     goto(params: Props, search?: {}, replace = false) {
@@ -170,10 +170,12 @@ class RouteTransition {
     unMountRoutes: RouteDef[];
     toMountRoutes: RouteDef[];
     newRouteStack: RouteDef[];
+    pos: number;
 
-    constructor(public url: Url, public route: RouteDef, public currentStack: RouteDef[], public urlHasChanged: boolean, public replace: boolean) {
+    constructor(public url: Url, public route: RouteDef, public currentStack: RouteDef[], public currentData: RouteProps[], public urlHasChanged: boolean, public replace: boolean) {
         const routeWithParents = route.getParents();
         const pos = this.getChangedRoutesPos(routeWithParents);
+        this.pos = pos;
         this.unMountRoutes = currentStack.slice(pos) as RouteDef[];
         this.toMountRoutes = routeWithParents.slice(pos) as RouteDef[];
         this.newRouteStack = currentStack.slice(0, pos).concat(this.toMountRoutes);
@@ -210,7 +212,19 @@ class RouteTransition {
     }
 
     enterToAll() {
-        const init = {params: this.route.getParams(this.url), search: this.url.search, url: this.url}
+        let init: RouteProps;
+        if (this.pos > 0) {
+            for (let i = 0; i < this.pos; i++) {
+                const currUrl = this.currentData[i];
+                this.stackData[i] = currUrl;
+                currUrl.params = this.route.getParams(this.url);
+                currUrl.url = this.url;
+                currUrl.search = this.url.search;
+            }
+            init = this.currentData[this.pos - 1];
+        } else {
+            init = {params: this.route.getParams(this.url), search: this.url.search, url: this.url};
+        }
         let promise = FastPromise.resolve(init);
         for (let i = 0; i < this.toMountRoutes.length; i++) {
             promise = promise.then(this.enterToAllMap, null, this, i);
@@ -218,9 +232,21 @@ class RouteTransition {
         return promise;
     }
 
+    cloneObj(obj: RouteProps) {
+        const keys = Object.keys(obj);
+        let i = keys.length;
+        const newObj = {};
+        while (i--) {
+            const key = keys[i];
+            newObj[key] = obj[key];
+        }
+        return newObj as RouteProps;
+    }
+
     enterToAllMap(val: RouteProps, pos: number) {
-        this.stackData[pos] = val;
-        return this.toMountRoutes[pos].enter(Object.create(val) as RouteProps);
+        const newVal = this.cloneObj(val);
+        this.stackData[pos + this.pos] = newVal;
+        return this.toMountRoutes[pos].enter(newVal);
     }
 
     leaveFromAll() {
@@ -284,7 +310,7 @@ export class Router {
         } else {
             const route = this.findRouteByUrl(url);
             if (route) {
-                const transition = new RouteTransition(url, route, this.routeStack, urlHasChanged, replace);
+                const transition = new RouteTransition(url, route, this.routeStack, this.routeStackEnterData, urlHasChanged, replace);
                 this.activeFastPromise
                     .then(transition.create, null, transition)
                     .then(this.successTransition, this.failTransition, this);

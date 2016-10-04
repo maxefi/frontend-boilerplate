@@ -1,5 +1,6 @@
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const autoprefixer = require('autoprefixer');
 
 var styleBundleName = 'style.css';
 
@@ -12,6 +13,7 @@ module.exports = {
     entry: __dirname + "/src/index.tsx",
     output: {
         path: __dirname + '/dist',
+        publicPath: '/',
         filename: "bundle.js",
     },
 
@@ -31,20 +33,31 @@ module.exports = {
             },
             {
                 test: /\.scss/,
-                loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap&camelCase&modules&&localIdentName=[local]-[hash:base64:2]!sass?sourceMap'),
-            }
+                loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap&camelCase&modules&importLoaders=1&&localIdentName=[local]-[hash:base64:2]!sass?sourceMap'),
+            },
+            {
+                test: /\.(png|svg|gif|woff2|woff|ttf)$/, loader: "url-loader?limit=100000"
+            },
+            {
+                test: /\.jpg$/, loader: "file-loader"
+            },
         ],
 
         preLoaders: [
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             // { test: /\.js$/, loader: "source-map-loader" }
-        ]
+        ],
+    },
+
+    postcss: function () {
+        return autoprefixer;
     },
 
     plugins: [
         new ExtractTextPlugin(styleBundleName),
         new HtmlWebpackPlugin(htmlPluginConfig),
     ],
+
 
     // When importing a module whose path matches one of the following, just
     // assume a corresponding global variable exists and use that instead.

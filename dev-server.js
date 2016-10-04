@@ -5,10 +5,10 @@ var wpConfig = require('./webpack.config');
 var server = new WebpackDevServer(webpack(wpConfig), {
     publicPath: wpConfig.output.publicPath,
     hot: true,
-    historyApiFallback: false,
-    proxy: {
-        "*": "http://localhost:3000/",
-    },
+    historyApiFallback: true,
+    // proxy: {
+    //     "*": "http://localhost:3000/",
+    // },
     stats: {
         // minimal logging
         assets: false,

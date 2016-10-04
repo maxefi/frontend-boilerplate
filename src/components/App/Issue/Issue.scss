@@ -1,0 +1,42 @@
+@import "../../../styles/index";
+
+.issue {
+    
+}
+
+.title {
+  border-bottom: 1px solid $header-gray;
+}
+
+.article {
+  white-space: pre-line;
+}
+
+.comment-body {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-start;
+  margin-top: 1em;
+  border: 1px dotted darken($header-gray, 50%);
+}
+
+
+.user-avatar {
+  height: 30px;
+  width: 30px;
+  display: inline;
+  margin: .5em;
+}
+
+.author {
+  font-style: bold;
+}
+
+.time {
+  font-size: .8em;
+}
+
+.comment-text {
+  font-size: .7em;
+  color: teal;
+}

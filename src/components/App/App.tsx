@@ -1,31 +1,27 @@
-import * as React from 'react';
-import * as styles from './App.scss';
+import * as React from "react";
+import * as classNames from "classnames";
+import * as styles from "./App.scss";
+import * as bs from "../../styles/bootstrap.scss";
 import {Header} from "./Header/Header";
 import {Footer} from "./Footer/Footer";
-import {FastPromise} from "../../../lib/services/Promise/Promise";
 
 export interface AppProps {
-    account: number;
+
 }
 
 export class App extends React.Component<AppProps, {}> {
-    static resolve() {
-        const p = new FastPromise()
-        setTimeout(() => {
-            p.resolve({account: 1});
-        }, 2000)
-        return p;
-    }
 
     render() {
         console.log(this.props);
         return (
-            <div className={styles.foo}>
-                <Header/>
-                <div>
-                    {this.props.children}
-                    <Footer/>
+            <div className={styles.wrapper}>
+                <div className={styles.main}>
+                    <Header/>
+                    <div className={classNames(bs.container)}>
+                        {this.props.children}
+                    </div>
                 </div>
+                <Footer/>
             </div>
         );
     }

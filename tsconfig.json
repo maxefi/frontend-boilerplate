@@ -8,5 +8,8 @@
     "outDir": "dist",
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true
-  }
+  },
+  "files": [
+    "src/index.tsx"
+  ]
 }

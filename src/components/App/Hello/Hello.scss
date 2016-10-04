@@ -1,9 +1,0 @@
-@import "../../../styles/mixins";
-
-.hello {
-  @media #{$device-with-menu} {
-    color: blue;
-  }
-  color: red;
-}
-
