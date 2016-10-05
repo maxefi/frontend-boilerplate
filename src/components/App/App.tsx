@@ -14,7 +14,7 @@ export class App extends React.Component<AppProps, {}> {
     render() {
         console.log(this.props);
         return (
-            <div className={styles.wrapper}>
+            <div className={classNames(bs.nav, styles.wrapper)}>
                 <div className={styles.main}>
                     <Header/>
                     <div className={classNames(bs.container)}>

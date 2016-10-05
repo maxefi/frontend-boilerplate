@@ -6,6 +6,7 @@
     "sourceMap": true,
     "jsx": "react",
     "outDir": "dist",
+    "experimentalDecorators": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true
   },
