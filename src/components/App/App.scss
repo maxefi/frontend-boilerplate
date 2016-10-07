@@ -11,8 +11,14 @@ $foo: margin;
 
 
 .wrapper {
-  app: app;
-  background-color: $test-color;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  /* background-color: $test-color; */;
+}
+
+.main {
+  flex: 1;
 }
 
 @mixin test($color) {
@@ -42,6 +48,12 @@ $foo: margin;
   //#{$foo}: 10;
   @include test1(test, white);
 }
+
+
+
+
+
+
 
 
 
