@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
-import * as styles from './Header.scss';
-import * as bs from '../../../styles/bootstrap.scss';
+import './Header.scss';
 import {headerVM} from "../HeaderVM";
 import {observable} from "mobx";
 import {observer} from "mobx-react";
@@ -14,8 +13,8 @@ interface HeaderProps {
 export class Header extends React.Component<HeaderProps, {}> {
     render() {
         return (
-            <div className={classNames(styles.header)}>
-                <div className={classNames(bs.container)}>
+            <div className="header">
+                <div className="container">
                     {headerVM.uppercaseTitle}
                 </div>
             </div>

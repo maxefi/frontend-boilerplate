@@ -2,7 +2,6 @@
 import * as ReactDOM from "react-dom";
 import * as React from "react";
 // import "../lib/styles/reset.scss";
-import "./styles/bootstrap.scss";
 import {RouterView, BrowserHistory} from "../lib/components/Router/Router";
 import {IndexRoute} from "./routes";
 

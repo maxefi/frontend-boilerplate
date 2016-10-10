@@ -7,61 +7,43 @@
   font-weight: normal;
   font-style: normal;
 }
-$foo: margin;
 
+//@mixin test($color) {
+//  color: $color;
+//}
+//
+//@mixin test1($prop, $color) {
+//  a.#{$prop}, button.#{$prop} {
+//    //#{$prop}: $color;
+//    color: $color;
+//  }
+//}
+//
+//.main-#{$foo} {
+//  flex: 1;
+//  color: #{$foo};
+//  //#{$foo}: 10;
+//  @include test1(test, white);
+//}
 
-.wrapper {
+.app__wrapper {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
-  /* background-color: $test-color; */;
 }
 
-.main {
+.app__header {
+  /*style*/
+}
+
+.app__main {
   flex: 1;
 }
 
-@mixin test($color) {
-  color: $color;
+.nav {
+  /*style*/
 }
 
-@mixin test1($prop, $color) {
-  a.#{$prop}, button.#{$prop} {
-    //#{$prop}: $color;
-    color: $color;
-  }
+.container {
+  /*style*/
 }
-
-
-//.wrapper {
-//  font-family: open_sanscondensed_light, sans-serif;
-//  font-size: 30px;
-//  display: flex;
-//  flex-flow: column nowrap;
-//  min-height: 100vh;
-//  @include test1(margin, 10);
-//}
-
-.main-#{$foo} {
-  flex: 1;
-  color: #{$foo};
-  //#{$foo}: 10;
-  @include test1(test, white);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

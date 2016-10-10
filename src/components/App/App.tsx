@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as classNames from "classnames";
-import * as styles from "./App.scss";
-import * as bs from "../../styles/bootstrap.scss";
+import "./App.scss";
+import "../../styles/bootstrap.scss";
 import {Header} from "./Header/Header";
 import {Footer} from "./Footer/Footer";
 
@@ -14,10 +14,12 @@ export class App extends React.Component<AppProps, {}> {
     render() {
         console.log(this.props);
         return (
-            <div className={classNames(bs.nav, styles.wrapper)}>
-                <div className={styles.main}>
+            <div className="nav app__wrapper">
+                <div className="app__header"></div>
+
+                <div className="app__main">
                     <Header/>
-                    <div className={classNames(bs.container)}>
+                    <div className="container">
                         {this.props.children}
                     </div>
                 </div>

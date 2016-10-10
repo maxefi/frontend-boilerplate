@@ -10,15 +10,17 @@ const htmlPluginConfig = {
 };
 
 module.exports = {
-    entry: __dirname + "/src/index.tsx",
+    entry: "./src/index.tsx",
     output: {
         path: __dirname + '/dist',
         publicPath: '/',
         filename: "bundle.js",
     },
 
+    context: __dirname,
+
     // Enable sourcemaps for debugging webpack's output.
-    devtool: "source-map",
+    devtool: "#source-map",
 
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.
@@ -29,11 +31,11 @@ module.exports = {
         loaders: [
             {
                 test: /\.tsx?$/,
-                loader: "ts-loader"
+                loader: "autocss!ts-loader"
             },
             {
                 test: /\.scss/,
-                loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap&camelCase&modules&importLoaders=1&&localIdentName=[local]-[hash:base64:2]!sass?sourceMap'),
+                loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap!sass?sourceMap'),
             },
             {
                 test: /\.(png|svg|gif|woff2|woff|ttf)$/, loader: "url-loader?limit=100000"
@@ -43,6 +45,7 @@ module.exports = {
             },
         ],
 
+
         preLoaders: [
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             // { test: /\.js$/, loader: "source-map-loader" }
@@ -51,6 +54,13 @@ module.exports = {
 
     postcss: function () {
         return autoprefixer;
+    },
+
+    autoCssLoader: {
+        syntax: 'scss',
+        excludes: [
+            require('autocss-loader/bootstrap-classnames')
+        ]
     },
 
     plugins: [
