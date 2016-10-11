@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as classNames from "classnames";
-import "./Issues.scss";
 import {IssuesStore} from "../../../models/IssuesStore";
 import {ActionButton} from "../../../../lib/components/ActionButton/ActionButton";
 import {IndexRoute} from "../../../routes";
@@ -37,7 +36,7 @@ export class Issues extends React.Component<IssuesProps, {}> {
 
         return (
             <div className="issues">
-                <ul className="nav nav-tabs">
+                <ul className="nav nav-pills">
                     <li className="nav-item">
                         <a
                             className={classNames("nav-link", activeTabClass == "Opened" ? "active" : '')}
@@ -57,7 +56,7 @@ export class Issues extends React.Component<IssuesProps, {}> {
                         </a>
                     </li>
                 </ul>
-                <ul className="list-group issues__list-group">
+                <ul className="issues__list-group">
                     {this.props.issues.items.filter((issue) => {
                         return issuesVM.activeTab == "Opened" ? issue.closedAt == null : issue.closedAt != null;
                     }).map((issue, pos) =>
@@ -70,7 +69,7 @@ export class Issues extends React.Component<IssuesProps, {}> {
                             </ActionButton>
                             <ActionButton
                                 onClick={() => this.onDelete(pos)}
-                                className="btn btn-danger pull-xs-right"
+                                className="close"
                             >
                                 ×
                             </ActionButton>

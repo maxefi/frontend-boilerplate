@@ -1,6 +1,4 @@
 import * as React from 'react';
-import * as classNames from 'classnames';
-import './Footer.scss';
 import * as github from './github.svg';
 
 interface FooterProps {

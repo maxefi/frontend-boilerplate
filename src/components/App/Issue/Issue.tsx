@@ -1,6 +1,4 @@
 import * as React from "react";
-import * as classNames from "classnames";
-import "./Issue.scss";
 import {IssueFull} from "../../../models/Issue";
 import {formatDate} from "../../../services/Utils";
 import {headerVM} from "../HeaderVM";

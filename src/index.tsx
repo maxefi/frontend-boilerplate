@@ -1,7 +1,7 @@
 ///<reference path="typings.d.ts"/>
 import * as ReactDOM from "react-dom";
 import * as React from "react";
-// import "../lib/styles/reset.scss";
+import "./index.scss"
 import {RouterView, BrowserHistory} from "../lib/components/Router/Router";
 import {IndexRoute} from "./routes";
 

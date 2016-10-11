@@ -1,6 +1,4 @@
 import * as React from 'react';
-import * as classNames from 'classnames';
-import './Header.scss';
 import {headerVM} from "../HeaderVM";
 import {observable} from "mobx";
 import {observer} from "mobx-react";
