@@ -1,8 +1,8 @@
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const autoprefixer = require('autoprefixer');
+// const autoprefixer = require('autoprefixer');
 
-var styleBundleName = 'style.css';
+// var styleBundleName = 'style.css';
 
 const htmlPluginConfig = {
     // filename: './src/index.html',
@@ -33,16 +33,16 @@ module.exports = {
                 test: /\.tsx?$/,
                 loader: "autocss!ts-loader"
             },
-            {
-                test: /\.scss/,
-                loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap!resolve-url!sass?sourceMap'),
-            },
-            {
-                test: /\.(png|svg|gif|woff2|woff|ttf)$/, loader: "url-loader?limit=100000"
-            },
-            {
-                test: /\.jpg$/, loader: "file-loader"
-            },
+            // {
+            //     test: /\.scss/,
+            //     loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap!resolve-url!postcss-loader!sass?sourceMap'),
+            // },
+            // {
+            //     test: /\.(png|svg|gif|woff2|woff|ttf)$/, loader: "url-loader?limit=100000"
+            // },
+            // {
+            //     test: /\.jpg$/, loader: "file-loader"
+            // },
         ],
 
 
@@ -52,9 +52,9 @@ module.exports = {
         ],
     },
 
-    postcss: function () {
-        return autoprefixer;
-    },
+    // postcss: function () {
+    //     return require('autoprefixer');
+    // },
 
     autoCssLoader: {
         syntax: 'scss',
@@ -64,8 +64,8 @@ module.exports = {
     },
 
     plugins: [
-        new ExtractTextPlugin(styleBundleName),
-        new HtmlWebpackPlugin(htmlPluginConfig),
+        // new ExtractTextPlugin(styleBundleName),
+        // new HtmlWebpackPlugin(htmlPluginConfig),
     ],
 
 

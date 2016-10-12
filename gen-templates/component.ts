@@ -23,15 +23,12 @@ export default class Component implements IGeneratorClass {
         const cls = UpperCamelCase(name);
         const lowerCase = lowerCamelCase(name);
         const dir = currentDir();
-        const styleRelativePath = relative(dir, findGenTemplatesRoot() + '/styles/');
+        // const styleRelativePath = relative(dir, findGenTemplatesRoot() + '/styles/');
         return [
             {
                 filename: `${dir}/${cls}/${cls}.tsx`,
                 content: trimLines(`
                     import * as React from 'react';
-                    import * as classNames from 'classnames';
-                    import * as styles from './${cls}.scss';
-                    import * as bs from '${styleRelativePath}/bootstrap.scss';
                     
                     interface ${cls}Props {
                         
@@ -40,17 +37,15 @@ export default class Component implements IGeneratorClass {
                     export class ${cls} extends React.Component<${cls}Props, {}> {
                         render() {
                             return (
-                                <div className={classNames(styles.${lowerCase})}>${cls}</div>
+                                <div className="${lowerCase}"}>${cls}</div>
                             );
                         }
                     }
-                `)
+                `),
             },
             {
                 filename: `${dir}/${cls}/${cls}.scss`,
                 content: trimLines(`
-                    @import "${styleRelativePath}/index";
-                    
                     .${lowerCase} {
                         
                     }
@@ -60,9 +55,7 @@ export default class Component implements IGeneratorClass {
                 filename: `${dir}/${cls}/${cls}.spec.tsx`,
                 content: trimLines(`
                     import * as React from 'react';
-                    import * as classNames from 'classnames';
                     import {${cls}} from './${cls}'; 
-                    import * as styles from './${cls}.scss';
                     
                     describe('${cls}', () => {
                         let renderer: any;
@@ -72,7 +65,7 @@ export default class Component implements IGeneratorClass {
                         
                         it('case1', () => {
                             const result = renderer(<${cls}/>);
-                            expect(result).toEqual(<div className={classNames(styles.${lowerCase})}>${cls}</div>);                        
+                            expect(result).toEqual(<div className="${lowerCase}"}>${cls}</div>);                        
                         });
                     });
                 `)

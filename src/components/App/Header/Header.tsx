@@ -14,6 +14,7 @@ export class Header extends React.Component<HeaderProps, {}> {
             <div className="header">
                 <div className="container">
                     {headerVM.uppercaseTitle}
+                    gulp
                 </div>
             </div>
         );

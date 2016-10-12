@@ -1,7 +1,5 @@
 import * as React from 'react';
-import * as classNames from 'classnames';
-import {Footer} from './Footer'; 
-import * as styles from './Footer.scss';
+import {Footer} from './Footer';
 
 describe('Footer', () => {
     let renderer: any;
@@ -11,6 +9,6 @@ describe('Footer', () => {
     
     it('case1', () => {
         const result = renderer(<Footer/>);
-        expect(result).toEqual(<div className={classNames(styles.footer)}>Footer</div>);                        
+        expect(result).toEqual(<div className="footer"}>Footer</div>);
     });
 });
