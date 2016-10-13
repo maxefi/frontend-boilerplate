@@ -1,8 +1,8 @@
 @import "../lib/styles/variables";
 @import "../lib/styles/mixins";
 
-@import "components/App/fonts/fonts";
 @import "styles/bootstrap/bootstrap";
+@import "fonts/fonts";
 //@import "./_list-group";
 @import "components/App/App";
 @import "components/App/Header/Header";

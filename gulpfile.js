@@ -1,8 +1,20 @@
 'use strict';
 
+var env = require('./build-env');
+// noinspection ES6ModulesDependencies
+env.init(process.env.NODE_ENV);
+
+var DEBUG = env.isDebugEnabled();
+var PROD = env.isProdEnv();
+var WATCH = env.isWatchEnabled();
+
 var gulp = require('gulp');
+var gulpIf = require('gulp-if');
+var plumber = require('gulp-plumber');
+var liveReload = require('gulp-livereload');
 var jade = require('gulp-jade');
 var sass = require('gulp-sass');
+var csso = require('gulp-csso');
 var sourceMap = require('gulp-sourcemaps');
 var autoprefixer = require('gulp-autoprefixer');
 var webpack = require('webpack');
@@ -12,10 +24,27 @@ var del = require('del');
 var data = require('gulp-data');
 var hash = require('gulp-hash');
 var references = require('gulp-hash-references');
+var imageMin = require('gulp-imagemin');
+var changed = require('gulp-changed');
+var flatten = require('gulp-flatten');
 
 var clientWebpackConfig = require('./webpack.config.js');
 
 var paths = {
+    images: {
+        src: 'src/components/App/**/*.{jpg,jpeg,png,gif,svg}',
+        dest: 'dist/images',
+        watch: 'src/components/App/**/*.{jpg,jpeg,png,gif,svg}',
+        compiled: 'dist/images/**/*.{jpg,jpeg,png,gif,svg}',
+    },
+
+    fonts: {
+        src: 'src/fonts/*.{woff,woff2}',
+        dest: 'dist/fonts',
+        watch: 'src/fonts/**/*.{woff,woff2}',
+        compiled: 'dist/fonts/**/*.{woff,woff2}',
+    },
+
     jade: {
         src: 'src/layout/**/*.jade',
         dest: 'dist',
@@ -36,8 +65,9 @@ var paths = {
     },
 
     assets: {
-        scripts: '.',
+        main: 'dist/.{html,css,js}',
         styles: '.',
+        scripts: '.',
     }
 };
 
@@ -104,18 +134,57 @@ function runWebpack(config, callback) {
     });
 }
 
+gulp.task('serve-compress-images', function () {
+    return gulp.src(paths.images.src)
+            .pipe(plumber())
+            .pipe(changed(paths.images.src))
+            .pipe(imageMin({
+                optimizationLevel: 3,
+                progressive: true,
+                interlaced: true
+            }))
+            .pipe(flatten())
+            .pipe(plumber.stop())
+            .pipe(gulp.dest(paths.images.dest));
+});
+
+gulp.task('serve-fonts', function () {
+    return gulp.src(paths.fonts.src)
+            .pipe(gulp.dest(paths.fonts.dest));
+});
+
 gulp.task('compile-styles', function () {
+    var sassOptions = {
+        outputStyle: DEBUG ? 'expanded' : 'compressed',
+        functions: sassFunctions(),
+    };
+
     return gulp.src(paths.scss.src)
-            .pipe(sourceMap.init())
-            .pipe(sass({
-                functions: sassFunctions()
-            }).on('error', sass.logError), sass({ functions: sassFunctions() }))
-            .pipe(sourceMap.write())
-            .pipe(gulp.dest('./dist'))
+            .pipe(plumber())
+            .pipe(data(function () {
+                return {
+                    imagesPath: paths.assets.scripts,
+                    fontsPath: paths.assets.styles,
+                };
+            }))
+            .pipe(gulpIf(DEBUG, sourceMap.init()))
+            .pipe(sass(sassOptions).on('error', sass.logError), sass(sassOptions))
+            .pipe(gulpIf(PROD, csso({
+                restructure: true,
+                sourceMap: false,
+                debug: true
+            })))
+            .pipe(autoprefixer({
+                browsers: ['> 1%']
+            }))
+            .pipe(gulpIf(DEBUG, sourceMap.write()))
+            .pipe(plumber.stop())
+            .pipe(gulp.dest(paths.scss.dest));
 });
 
 gulp.task('build-layouts', function () {
     return gulp.src(paths.jade.src)
+            .pipe(plumber())
             .pipe(data(function () {
                 return {
                     scriptPath: paths.assets.scripts,
@@ -125,6 +194,7 @@ gulp.task('build-layouts', function () {
             .pipe(jade({
                 pretty: '\t',
             }))
+            .pipe(plumber.stop())
             .pipe(gulp.dest(paths.jade.dest));
 });
 
@@ -132,17 +202,17 @@ gulp.task('set-styles-hash', function () {
     return gulp.src(paths.scss.compiled)
             .pipe(hash())
             .pipe(gulp.dest(paths.jade.dest))
-            .pipe(hash.manifest('1.json'))
+            .pipe(hash.manifest('hashManifest.json'))
             .pipe(references(gulp.src(paths.jade.compiled)))
             .pipe(gulp.dest(paths.jade.dest))
-            del(['dist/index.css']);
+    del(['dist/index.css']);
 })
 
 gulp.task('set-scripts-hash', function () {
     return gulp.src(paths.scripts.compiled)
             .pipe(hash())
             .pipe(gulp.dest(paths.jade.dest))
-            .pipe(hash.manifest('1.json'))
+            .pipe(hash.manifest('hashManifest.json'))
             .pipe(references(gulp.src(paths.jade.compiled)))
             .pipe(gulp.dest(paths.jade.dest))
 })
@@ -159,19 +229,49 @@ gulp.task('clean-non-hashed', function () {
     return del(['dist/bundle.js', 'dist/bundle.js.map', 'dist/index.css'])
 })
 
-gulp.task('build',
-        gulp.series(
-                'clean',
-                gulp.parallel('compile-styles', 'build-client-app'),
-                'build-layouts',
-                gulp.parallel('set-styles-hash', 'set-scripts-hash'),
-                'clean-non-hashed'
-));
-
 gulp.task('watch', function () {
-    gulp.watch(paths.scss.watch, gulp.series('compile-styles', 'set-styles-hash'));
-    gulp.watch(paths.scripts.watch, gulp.series('build-client-app', 'set-scripts-hash'));
+    gulp.watch(paths.images.watch, gulp.series('serve-compress-images'));
+    gulp.watch(paths.scss.watch, gulp.series('compile-styles'));
+    gulp.watch(paths.scripts.watch, gulp.series('build-client-app'));
     gulp.watch(paths.jade.watch, gulp.series('build-layouts'));
+
+    liveReload.listen();
+
+    gulp
+            .watch(
+                    [
+                        paths.images.compiled,
+                        paths.fonts.compiled,
+                        paths.scss.compiled,
+                        paths.jade.compiled,
+                        paths.scripts.compiled,
+                    ]
+            )
+            .on('change', liveReload.changed);
 });
 
-gulp.task('default', gulp.series('build', gulp.parallel('watch')));
+if (DEBUG) {
+    gulp.task('build',
+            gulp.series(
+                    'clean',
+                    gulp.parallel('serve-compress-images', 'serve-fonts', 'compile-styles', 'build-client-app'),
+                    'build-layouts'
+            )
+    );
+} else {
+    gulp.task('build',
+            gulp.series(
+                    'clean',
+                    gulp.parallel('serve-compress-images', 'serve-fonts', 'compile-styles', 'build-client-app'),
+                    'build-layouts',
+                    gulp.parallel('set-styles-hash', 'set-scripts-hash'),
+                    'clean-non-hashed'
+            )
+    );
+}
+
+if (WATCH) {
+    gulp.task('default', gulp.series('build', gulp.parallel('watch')));
+} else {
+    gulp.task('default', gulp.series('build'));
+}

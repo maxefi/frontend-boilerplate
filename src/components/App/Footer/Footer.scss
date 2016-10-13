@@ -3,10 +3,10 @@
   padding-bottom: 40px;
   border-top: 1px solid darken($header-gray, 5%);
   text-align: center;
-  color: blue;
+  color: red;
   background: blue;
 }
 
 .footer__logo {
-  /*style*/
+  background: url('#{$images-path}/github.svg');
 }
