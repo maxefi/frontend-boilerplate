@@ -6,7 +6,6 @@ import {RouterView, BrowserHistory} from "../lib/components/Router/Router";
 import {IndexRoute} from "./routes";
 
 const history = new BrowserHistory();
-const wrapper = document.body.appendChild(document.createElement('div')) as HTMLElement;
-wrapper.className = 'wrapper';
+const wrapper = document.getElementById('div');
 
 ReactDOM.render(<RouterView indexRoute={IndexRoute} history={history}/>, wrapper);
