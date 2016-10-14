@@ -9,24 +9,24 @@ var PROD = env.isProdEnv();
 var WATCH = env.isWatchEnabled();
 
 var gulp = require('gulp');
-var gulpIf = require('gulp-if');
-var plumber = require('gulp-plumber');
-var liveReload = require('gulp-livereload');
-var jade = require('gulp-jade');
-var sass = require('gulp-sass');
+var autoPrefixer = require('gulp-autoprefixer');
+var changed = require('gulp-changed');
+var concat = require('gulp-concat');
 var csso = require('gulp-csso');
-var sourceMap = require('gulp-sourcemaps');
-var autoprefixer = require('gulp-autoprefixer');
-var del = require('del');
 var data = require('gulp-data');
+var flatten = require('gulp-flatten');
 var hash = require('gulp-hash');
 var references = require('gulp-hash-references');
+var gulpIf = require('gulp-if');
 var imageMin = require('gulp-imagemin');
-var changed = require('gulp-changed');
-var flatten = require('gulp-flatten');
+var jade = require('gulp-jade');
+var liveReload = require('gulp-livereload');
+var plumber = require('gulp-plumber');
+var sass = require('gulp-sass');
+var sourceMap = require('gulp-sourcemaps');
 var ts = require('gulp-typescript');
-var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
+var del = require('del');
 
 var paths = {
     images: {
@@ -145,7 +145,7 @@ gulp.task('compile-styles', function () {
                 sourceMap: false,
                 debug: true
             })))
-            .pipe(autoprefixer({
+            .pipe(autoPrefixer({
                 browsers: ['> 1%']
             }))
             .pipe(gulpIf(DEBUG, sourceMap.write()))
