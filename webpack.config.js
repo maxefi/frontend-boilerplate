@@ -34,7 +34,7 @@ module.exports = {
                 loader: "autocss!ts-loader"
             },
             // {
-            //     test: /\.scss/,
+            //     test: /\.styles/,
             //     loader: ExtractTextPlugin.extract('style-loader', 'css?sourceMap!resolve-url!postcss-loader!sass?sourceMap'),
             // },
             // {
@@ -57,7 +57,7 @@ module.exports = {
     // },
 
     autoCssLoader: {
-        syntax: 'scss',
+        syntax: 'styles',
         excludes: [
             require('autocss-loader/bootstrap-classnames').v4
         ]

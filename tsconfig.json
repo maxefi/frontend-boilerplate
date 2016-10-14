@@ -1,11 +1,16 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "amd",
     "target": "es5",
     "noImplicitAny": true,
-    "sourceMap": true,
+//    "sourceMap": true,
     "jsx": "react",
     "outDir": "dist",
+    "outFile": "index.js",
+    "rootDir": "./",
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
     "experimentalDecorators": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true

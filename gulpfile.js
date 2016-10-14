@@ -17,9 +17,6 @@ var sass = require('gulp-sass');
 var csso = require('gulp-csso');
 var sourceMap = require('gulp-sourcemaps');
 var autoprefixer = require('gulp-autoprefixer');
-var webpack = require('webpack');
-var notifier = require('node-notifier');
-var gulpLog = require('gulplog');
 var del = require('del');
 var data = require('gulp-data');
 var hash = require('gulp-hash');
@@ -27,8 +24,9 @@ var references = require('gulp-hash-references');
 var imageMin = require('gulp-imagemin');
 var changed = require('gulp-changed');
 var flatten = require('gulp-flatten');
-
-var clientWebpackConfig = require('./webpack.config.js');
+var ts = require('gulp-typescript');
+var concat = require('gulp-concat');
+var uglify = require('gulp-uglify');
 
 var paths = {
     images: {
@@ -52,7 +50,7 @@ var paths = {
         compiled: 'dist/*.html'
     },
 
-    scss: {
+    styles: {
         src: 'src/index.scss',
         dest: 'dist',
         watch: 'src/**/*.scss',
@@ -61,15 +59,41 @@ var paths = {
 
     scripts: {
         watch: 'src/**/*.{ts,tsx}',
-        compiled: 'dist/*.js'
+        compiled: 'dist/*.js',
+        vendor: [
+            'node_modules/react/dist/react.js',
+            'node_modules/react-dom/dist/react-dom.js',
+            'node_modules/mobx/lib/mobx.umd.js',
+        ],
+        vendorBundle: 'vendor.js',
+        dest:  'dist'
     },
 
     assets: {
         main: 'dist/.{html,css,js}',
         styles: '.',
         scripts: '.',
-    }
+    },
 };
+
+gulp.task('serve-compress-images', function () {
+    return gulp.src(paths.images.src)
+            .pipe(plumber())
+            .pipe(changed(paths.images.src))
+            .pipe(imageMin({
+                optimizationLevel: 3,
+                progressive: true,
+                interlaced: true
+            }))
+            .pipe(flatten())
+            .pipe(plumber.stop())
+            .pipe(gulp.dest(paths.images.dest));
+});
+
+gulp.task('serve-fonts', function () {
+    return gulp.src(paths.fonts.src)
+            .pipe(gulp.dest(paths.fonts.dest));
+});
 
 function sassFunctions(options) {
     options = options || {};
@@ -100,66 +124,13 @@ function sassFunctions(options) {
     return funcs;
 }
 
-function handleError(error, title) {
-    notifier.notify({
-        title: title,
-        message: error
-    });
-
-    gulpLog.error(error);
-}
-
-function runWebpack(config, callback) {
-    webpack(config, function (error, stats) {
-        // no hard error, try to get a soft error from stats
-        if (!error) {
-            error = stats.toJson().errors[0];
-        }
-
-        if (error) {
-            handleError(error, 'Build scripts');
-        } else {
-            gulpLog.info(stats.toString({
-                colors: true,
-                chunkModules: false,
-            }));
-        }
-
-        // task never errs in watch mode, it waits and recompiles
-        if (!config.watch && error) {
-            callback(error);
-        } else {
-            callback();
-        }
-    });
-}
-
-gulp.task('serve-compress-images', function () {
-    return gulp.src(paths.images.src)
-            .pipe(plumber())
-            .pipe(changed(paths.images.src))
-            .pipe(imageMin({
-                optimizationLevel: 3,
-                progressive: true,
-                interlaced: true
-            }))
-            .pipe(flatten())
-            .pipe(plumber.stop())
-            .pipe(gulp.dest(paths.images.dest));
-});
-
-gulp.task('serve-fonts', function () {
-    return gulp.src(paths.fonts.src)
-            .pipe(gulp.dest(paths.fonts.dest));
-});
-
 gulp.task('compile-styles', function () {
     var sassOptions = {
         outputStyle: DEBUG ? 'expanded' : 'compressed',
         functions: sassFunctions(),
     };
 
-    return gulp.src(paths.scss.src)
+    return gulp.src(paths.styles.src)
             .pipe(plumber())
             .pipe(data(function () {
                 return {
@@ -179,8 +150,18 @@ gulp.task('compile-styles', function () {
             }))
             .pipe(gulpIf(DEBUG, sourceMap.write()))
             .pipe(plumber.stop())
-            .pipe(gulp.dest(paths.scss.dest));
+            .pipe(gulp.dest(paths.styles.dest));
 });
+
+gulp.task('set-styles-hash', function () {
+    return gulp.src(paths.styles.compiled)
+            .pipe(hash())
+            .pipe(gulp.dest(paths.jade.dest))
+            .pipe(hash.manifest('hashStylesManifest.json'))
+            .pipe(references(gulp.src(paths.jade.compiled)))
+            .pipe(gulp.dest(paths.styles.dest))
+    del(['dist/index.css']);
+})
 
 gulp.task('build-layouts', function () {
     return gulp.src(paths.jade.src)
@@ -198,41 +179,47 @@ gulp.task('build-layouts', function () {
             .pipe(gulp.dest(paths.jade.dest));
 });
 
-gulp.task('set-styles-hash', function () {
-    return gulp.src(paths.scss.compiled)
-            .pipe(hash())
-            .pipe(gulp.dest(paths.jade.dest))
-            .pipe(hash.manifest('hashManifest.json'))
-            .pipe(references(gulp.src(paths.jade.compiled)))
-            .pipe(gulp.dest(paths.jade.dest))
-    del(['dist/index.css']);
-})
+var tsProject = ts.createProject('tsconfig.json');
+
+gulp.task('build-scripts', function() {
+    var tsResult = tsProject.src()
+            .pipe(gulpIf(DEBUG, sourceMap.init()))
+            .pipe(tsProject())
+
+    return tsResult.js
+            .pipe(gulpIf(PROD, uglify()))
+            .pipe(gulpIf(DEBUG, sourceMap.write()))
+            .pipe(gulp.dest('dist'));
+});
+
+gulp.task('build-vendor-scripts', function () {
+    return gulp.src(paths.scripts.vendor)
+            .pipe(concat(paths.scripts.vendorBundle))
+            .pipe(uglify())
+            .pipe(gulp.dest(paths.scripts.dest));
+});
 
 gulp.task('set-scripts-hash', function () {
     return gulp.src(paths.scripts.compiled)
             .pipe(hash())
             .pipe(gulp.dest(paths.jade.dest))
-            .pipe(hash.manifest('hashManifest.json'))
+            .pipe(hash.manifest('hashScriptsManifest.json'))
             .pipe(references(gulp.src(paths.jade.compiled)))
-            .pipe(gulp.dest(paths.jade.dest))
+            .pipe(gulp.dest(paths.scripts.dest))
 })
 
-gulp.task('build-client-app', function (callback) {
-    runWebpack(clientWebpackConfig, callback);
-});
-
 gulp.task('clean', function () {
-    return del([paths.scss.dest]);
+    return del([paths.styles.dest]);
 });
 
 gulp.task('clean-non-hashed', function () {
-    return del(['dist/bundle.js', 'dist/bundle.js.map', 'dist/index.css'])
+    return del(['dist/index.js', 'dist/vendor.js', 'dist/index.css'])
 })
 
 gulp.task('watch', function () {
     gulp.watch(paths.images.watch, gulp.series('serve-compress-images'));
-    gulp.watch(paths.scss.watch, gulp.series('compile-styles'));
-    gulp.watch(paths.scripts.watch, gulp.series('build-client-app'));
+    gulp.watch(paths.styles.watch, gulp.series('compile-styles'));
+    gulp.watch(paths.scripts.watch, gulp.series('build-scripts'));
     gulp.watch(paths.jade.watch, gulp.series('build-layouts'));
 
     liveReload.listen();
@@ -242,7 +229,7 @@ gulp.task('watch', function () {
                     [
                         paths.images.compiled,
                         paths.fonts.compiled,
-                        paths.scss.compiled,
+                        paths.styles.compiled,
                         paths.jade.compiled,
                         paths.scripts.compiled,
                     ]
@@ -254,7 +241,7 @@ if (DEBUG) {
     gulp.task('build',
             gulp.series(
                     'clean',
-                    gulp.parallel('serve-compress-images', 'serve-fonts', 'compile-styles', 'build-client-app'),
+                    gulp.parallel('serve-compress-images', 'serve-fonts', 'compile-styles', 'build-vendor-scripts', 'build-scripts'),
                     'build-layouts'
             )
     );
@@ -262,7 +249,7 @@ if (DEBUG) {
     gulp.task('build',
             gulp.series(
                     'clean',
-                    gulp.parallel('serve-compress-images', 'serve-fonts', 'compile-styles', 'build-client-app'),
+                    gulp.parallel('serve-compress-images', 'serve-fonts', 'compile-styles', 'build-vendor-scripts', 'build-scripts'),
                     'build-layouts',
                     gulp.parallel('set-styles-hash', 'set-scripts-hash'),
                     'clean-non-hashed'
